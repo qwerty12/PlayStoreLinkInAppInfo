@@ -1,5 +1,6 @@
 package pk.qwerty12.playstorelinkinappinfo;
 
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -46,7 +48,18 @@ public class PlayStoreLinkInAppInfo implements IXposedHookLoadPackage {
 									context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id="+packageName)));
 							}
 						});
-						
+                        playStoreButton.setOnLongClickListener(new View.OnLongClickListener() {
+                        		@Override
+                        		public boolean onLongClick(View v) {
+                                    final String packageName = (String) v.getTag();
+                                    if (packageName != null) {
+                                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                                        clipboard.setText("https://play.google.com/store/apps/details?id=" + packageName);
+                                        return true;
+                                    }
+                        		    return false;
+                        		}
+                        });
 						viewGroup.addView(playStoreButton, viewGroup.indexOfChild(mNotificationSwitch) + 1, mUninstallButton.getLayoutParams());
 						
 						XposedHelpers.setAdditionalInstanceField(param.thisObject, "playStoreButton", playStoreButton);
